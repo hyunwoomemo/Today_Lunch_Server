@@ -7,5 +7,6 @@ const shopController = require("../controller/shopController");
 
 router.post("/add", authCheck, shopController.add);
 router.get("/list", authCheck, shopController.getAll);
+router.get("/getData", authCheck, shopController.getShopData);
 
 module.exports = router;

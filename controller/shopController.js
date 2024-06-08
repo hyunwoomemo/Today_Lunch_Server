@@ -40,3 +40,15 @@ exports.getAll = async (req, res) => {
     }
   }
 };
+
+exports.getShopData = async (req, res) => {
+  console.log("🔥 getShopData");
+  try {
+    const shopData = await shopModel.getShopData();
+
+    console.log("shopDatashopData", shopData);
+    res.json({ CODE: "SD000", DATA: shopData });
+  } catch (err) {
+    return res.sendStatus(500);
+  }
+};
