@@ -8,21 +8,21 @@ exports.addRecord = async (req, res) => {
   console.log("addrecord req", req);
 
   try {
-    const [shopResult] = await db.query("insert into shops (name, address,createdAt) values (?, ?, ?)", [shop, address, new Date(date)]);
+    const [row] = await db.query("select shop_id from shops where name = (?) and address = (?)", [shop, address]);
 
-    const shopId = shopResult.insertId;
 
-    const [menuResult] = await db.query("insert into menus (shop_id, menu_name, price, createdAt) values (?,?,?,?)", [shopId, menu, price, new Date(date)]);
-
-    console.log("🔥 menu result", menuResult);
-
-    const menuId = menuResult.insertId;
-
-    console.log("🔥 menu Id", menuId);
-
-    const [userMenuResult] = await db.query("insert into user_menus (user_id, menu_id, star_rating, review, visit_date) values (?,?,?,?,?)", [userId, menuId, rating, review, new Date(date)]);
-
-    console.log("🔥 user menu result", userMenuResult);
+    if (row.length > 0) {
+      const shopId = row[0].shop_id;
+      const [menuResult] = await db.query("insert into menus (shop_id, menu_name, price, createdAt) values (?,?,?,?)", [shopId, menu, price, new Date(date)]);
+      const menuId = menuResult.insertId;
+      const [userMenuResult] = await db.query("insert into user_menus (user_id, menu_id, star_rating, review, visit_date) values (?,?,?,?,?)", [userId, menuId, rating, review, new Date(date)]);
+    } else {
+      const [shopResult] = await db.query("insert into shops (name, address,createdAt) values (?, ?, ?)", [shop, address, new Date(date)]);
+      const shopId = shopResult.insertId;
+      const [menuResult] = await db.query("insert into menus (shop_id, menu_name, price, createdAt) values (?,?,?,?)", [shopId, menu, price, new Date(date)]);
+      const menuId = menuResult.insertId;
+      const [userMenuResult] = await db.query("insert into user_menus (user_id, menu_id, star_rating, review, visit_date) values (?,?,?,?,?)", [userId, menuId, rating, review, new Date(date)]);
+    }
 
     res.json({ CODE: "RA000", message: "success !!" });
   } catch (err) {
