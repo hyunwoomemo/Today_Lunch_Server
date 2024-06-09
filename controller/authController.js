@@ -100,12 +100,12 @@ exports.login = async (req, res) => {
       return res.json({ CODE: "AL002", message: "Invalid username or password" });
     }
 
-    const accessToken = jwt.sign({ id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3m" });
+    const accessToken = jwt.sign({ user_id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3m" });
     const refreshToken = jwt.sign({ user_id: user.user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
     console.log("🔥🔥🔥🔥🔥🔥🔥🔥", user, accessToken, refreshToken);
 
-    res.json({ CODE: "AL000", message: "Login successful", TOKEN: { accessToken, refreshToken }, DATA: { id: user.user_id } });
+    res.json({ CODE: "AL000", message: "Login successful", TOKEN: { accessToken, refreshToken }, DATA: { info: { user_id: user.user_id, createdAt: user.createdAt } } });
   } catch (error) {
     console.error(error);
     res.sendStatus(500);
