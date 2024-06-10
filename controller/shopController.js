@@ -44,8 +44,9 @@ exports.getAll = async (req, res) => {
 exports.getShopData = async (req, res) => {
   console.log("🔥 getShopData");
 
+
   try {
-    const shopData = await shopModel.getShopData(req.user.user_id);
+    const shopData = await shopModel.getShopData(req.params.userId);
 
     console.log("shopDatashopData", shopData);
     res.json({ CODE: "SD000", DATA: shopData });

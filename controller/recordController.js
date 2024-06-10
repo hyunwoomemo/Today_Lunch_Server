@@ -10,7 +10,6 @@ exports.addRecord = async (req, res) => {
   try {
     const [row] = await db.query("select shop_id from shops where name = (?) and address = (?)", [shop, address]);
 
-
     if (row.length > 0) {
       const shopId = row[0].shop_id;
       const [menuResult] = await db.query("insert into menus (shop_id, menu_name, price, createdAt) values (?,?,?,?)", [shopId, menu, price, new Date(date)]);
