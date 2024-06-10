@@ -18,8 +18,6 @@ exports.logUser = async (req, res) => {
 };
 
 exports.kakaoLogin = async (req, res) => {
-  const user = await userModel.getAllUser();
-
   console.log(req.body);
 
   const { accessToken, refreshToken } = req.body;
@@ -37,38 +35,53 @@ exports.kakaoLogin = async (req, res) => {
 
     const { id, properties, kakao_account } = kakaoUser;
 
-    db.query("select * from user where kakao_id = ?", [id], (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.sendStatus(500);
-      }
+    const [results] = await db.query("SELECT * FROM users WHERE kakao_id = ?", [id]);
 
-      if (results.length > 0) {
-        const user = results[0];
+    if (results.length > 0) {
+      const user = results[0];
 
-        const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: "1h" });
+      console.log("useruser", user);
 
-        return res.json({ message: "Login successful", token });
-      } else {
-        // 사용자 없음 (회원가입 처리)
-        const username = properties.nickname;
-        const profile_image = properties.profile_image;
+      const newAccessToken = jwt.sign({ user_id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+      const newRefreshToken = jwt.sign({ user_id: user.user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
-        db.query("INSERT INTO user (kakao_id, nickname, profile_image) VALUES (?, ?, ?)", [id, username, profile_image], (err, result) => {
-          if (err) {
-            console.error(err);
-            return res.sendStatus(500);
-          }
+      console.log("🔥🔥🔥🔥🔥🔥🔥🔥", user, newAccessToken, newRefreshToken);
 
-          const userId = result.insertId;
-          const token = jwt.sign({ id: userId }, SECRET_KEY, { expiresIn: "1h" });
+      res.json({
+        CODE: "KL000",
+        message: "Login successful",
+        TOKEN: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+        DATA: { info: { user_id: user.user_id, createdAt: user.createdAt } },
+      });
 
-          return res.json({ message: "Signup and login successful", token });
-        });
-      }
-    });
+      console.log("success!!!");
+    } else {
+      const username = properties.nickname;
+      const profile_image = properties.profile_image;
+
+      const [insertResult] = await db.query("INSERT INTO users (kakao_id, nickname, profile_image, createdAt, type) VALUES (?, ?, ?, ?, ?)", [id, username, profile_image, new Date(), 2]);
+
+      console.log("rrr", insertResult);
+
+      const userId = insertResult.insertId;
+
+      const newAccessToken = jwt.sign({ user_id: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+      const newRefreshToken = jwt.sign({ user_id: userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+
+      console.log("🔥🔥🔥🔥🔥🔥🔥🔥", userId, newAccessToken, newRefreshToken);
+
+      res.json({
+        CODE: "KRL000",
+        message: "Signup and login successful",
+        TOKEN: { accessToken: newAccessToken, refreshToken: newRefreshToken },
+        DATA: { info: { user_id: userId, createdAt: new Date() } },
+      });
+
+      console.log("success!!!");
+    }
   } catch (err) {
     console.error(err);
+    res.status(500).json({ CODE: "ERROR", message: "Internal server error", error: err.message });
   }
 };
 
@@ -100,7 +113,9 @@ exports.login = async (req, res) => {
       return res.json({ CODE: "AL002", message: "Invalid username or password" });
     }
 
-    const accessToken = jwt.sign({ user_id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3m" });
+    console.log("user1", user);
+
+    const accessToken = jwt.sign({ user_id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
     const refreshToken = jwt.sign({ user_id: user.user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
     console.log("🔥🔥🔥🔥🔥🔥🔥🔥", user, accessToken, refreshToken);
@@ -130,7 +145,7 @@ exports.register = async (req, res) => {
     } else {
       const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-      db.query("insert into users (userId, password, createdAt) values (?,?,?)", [id, hashedPassword, new Date()], (err, result) => {
+      db.query("insert into users (userId, password, createdAt, type) values (?,?,?, ?)", [id, hashedPassword, new Date(), 1], (err, result) => {
         if (err) {
           if (err.code === "ER_DUP_ENTRY") {
             return res.json({ CODE: "AR003", message: "ID already exists" });
