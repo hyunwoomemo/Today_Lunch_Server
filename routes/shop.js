@@ -6,7 +6,7 @@ const router = express.Router();
 const shopController = require("../controller/shopController");
 
 router.post("/add", authCheck, shopController.add);
-router.get("/list", authCheck, shopController.getAll);
+router.get("/list/:userId", authCheck, shopController.getAll);
 router.get("/getData/:userId", authCheck, shopController.getShopData);
 
 module.exports = router;

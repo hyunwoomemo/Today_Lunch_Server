@@ -25,10 +25,10 @@ exports.add = async (req, res) => {
 };
 
 exports.getAll = async (req, res) => {
-  console.log("get all 🔥");
+  console.log("get all 🔥", req.params);
 
   try {
-    const shopList = await shopModel.getShopList();
+    const shopList = await shopModel.getShopList(req.params.userId);
 
     console.log("zxcmkzmxckmzc", shopList);
 
@@ -43,7 +43,6 @@ exports.getAll = async (req, res) => {
 
 exports.getShopData = async (req, res) => {
   console.log("🔥 getShopData");
-
 
   try {
     const shopData = await shopModel.getShopData(req.params.userId);
