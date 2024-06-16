@@ -5,6 +5,7 @@ const port = process.env.PORT || 8080;
 const authRouter = require("./routes/auth");
 const shopRouter = require("./routes/shop");
 const recordRouter = require("./routes/record");
+const groupRouter = require("./routes/group");
 
 app.use(express.json());
 
@@ -25,6 +26,7 @@ app.get("/123", (req, res) => {
 app.use("/auth", authRouter);
 app.use("/shop", shopRouter);
 app.use("/record", recordRouter);
+app.use("/group", groupRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
