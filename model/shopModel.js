@@ -4,7 +4,7 @@ exports.getShopList = async (userId) => {
   console.log("userIduserId", userId);
 
   const [rows] = await db.query(
-    "select s.shop_id, s.name, s.address, s.createdAt, um.visit_date, um.star_rating from shops s join menus m join user_menus um on um.menu_id = m.menu_id and s.shop_id = m.shop_id where um.user_id = (?);",
+    "select s.shop_id, s.name, s.address, s.createdAt, MAX(um.visit_date) AS visit_date, AVG(um.star_rating) AS average_star_rating  from shops s join menus m join user_menus um on um.menu_id = m.menu_id and s.shop_id = m.shop_id where um.user_id = (?) group by s.shop_id, s.name, s.address, s.createdAt;",
     [Number(userId)]
   );
 
