@@ -45,13 +45,12 @@ exports.kakaoLogin = async (req, res) => {
       const newAccessToken = jwt.sign({ user_id: user.user_id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
       const newRefreshToken = jwt.sign({ user_id: user.user_id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
-      console.log("🔥🔥🔥🔥🔥🔥🔥🔥", user, newAccessToken, newRefreshToken);
-
+      const profile_image = properties.profile_image;
       res.json({
         CODE: "KL000",
         message: "Login successful",
         TOKEN: { accessToken: newAccessToken, refreshToken: newRefreshToken },
-        DATA: { info: { user_id: user.user_id, createdAt: user.createdAt } },
+        DATA: { info: { user_id: user.user_id, createdAt: user.createdAt, profile_image: profile_image } },
       });
 
       console.log("success!!!");
@@ -74,7 +73,7 @@ exports.kakaoLogin = async (req, res) => {
         CODE: "KRL000",
         message: "Signup and login successful",
         TOKEN: { accessToken: newAccessToken, refreshToken: newRefreshToken },
-        DATA: { info: { user_id: userId, createdAt: new Date() } },
+        DATA: { info: { user_id: userId, createdAt: new Date(), profile_image: profile_image } },
       });
 
       console.log("success!!!");
@@ -93,6 +92,8 @@ exports.login = async (req, res) => {
     return res.json({ CODE: "AL001", message: "Missing required fields" });
   }
   console.log("🔥🔥🔥🔥");
+
+  // res.json({ message: "그만 좀 보내!!!!!" });
 
   try {
     const [results] = await db.query("SELECT * FROM users WHERE userId = ?", [id]);

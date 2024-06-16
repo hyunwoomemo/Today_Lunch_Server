@@ -14,7 +14,7 @@ exports.kakaoLogin = async () => {
 };
 
 exports.getUserInfo = async (userId) => {
-  const [rows] = await db.query("SELECT user_id, createdAt FROM users where user_id = ?", [userId]);
+  const [rows] = await db.query("SELECT user_id, createdAt, profile_image FROM users where user_id = ?", [userId]);
 
   return rows[0];
 };
